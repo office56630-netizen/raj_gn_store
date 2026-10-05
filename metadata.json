@@ -1,0 +1,6 @@
+{
+  "name": "CredEx Kirana Store - Credit & Debit Khata Book",
+  "description": "Mobile-ready Credit & Debit Khata Book management application tailored for Kirana, grocery, and general stores with real-time MongoDB ledger.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

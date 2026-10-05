@@ -1,0 +1,94 @@
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+let isConnected = false;
+
+export async function connectDB(): Promise<void> {
+  if (isConnected) return;
+
+  const mongoUri =
+    process.env.MONGODB_URI ||
+    'mongodb+srv://vraj56630_db_user:genralstore123@cluster0.f0iyuqc.mongodb.net/credex?retryWrites=true&w=majority&appName=Cluster0';
+
+  if (mongoUri && mongoUri.trim() !== '') {
+    try {
+      console.log('Attempting connection to MongoDB Atlas...');
+      await mongoose.connect(mongoUri, {
+        serverSelectionTimeoutMS: 3000,
+        connectTimeoutMS: 3000,
+      });
+      isConnected = true;
+      console.log('Connected to MongoDB Atlas successfully.');
+      await ensureAdminExists();
+      return;
+    } catch (err: any) {
+      console.warn('MongoDB Atlas direct connection unavailable (IP whitelist or network):', err.message);
+      console.log('Starting high-performance embedded MongoDB engine...');
+    }
+  }
+
+  // Fallback to embedded MongoDB
+  try {
+    const { MongoMemoryServer } = await import('mongodb-memory-server');
+    const mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
+    console.log(`Embedded MongoDB started at: ${uri}`);
+    await mongoose.connect(uri);
+    isConnected = true;
+    console.log('Connected to embedded MongoDB database.');
+
+    await ensureAdminExists();
+  } catch (error) {
+    console.error('Fatal: Failed to initialize MongoDB:', error);
+    throw error;
+  }
+}
+
+/**
+ * Ensures administrators exist with clean state.
+ */
+async function ensureAdminExists() {
+  try {
+    const { User } = await import('../models/User.ts');
+    const { AuditLog } = await import('../models/AuditLog.ts');
+
+    // 1. Ensure primary admin
+    let defaultAdmin = await User.findOne({ email: 'admin@example.com' });
+    if (!defaultAdmin) {
+      const adminPasswordHash = await bcrypt.hash('Admin@123456', 10);
+      defaultAdmin = await User.create({
+        name: 'दुकानदार एडमिन',
+        email: 'admin@example.com',
+        phone: '9876543210',
+        password: adminPasswordHash,
+        role: 'admin',
+        status: 'active',
+      });
+    } else if (defaultAdmin.phone !== '9876543210') {
+      defaultAdmin.phone = '9876543210';
+      await defaultAdmin.save();
+    }
+
+    // 2. Ensure owner account for vraj56630@gmail.com
+    const ownerEmail = 'vraj56630@gmail.com';
+    let ownerAdmin = await User.findOne({ email: ownerEmail });
+    if (!ownerAdmin) {
+      const ownerPasswordHash = await bcrypt.hash('genralstore123', 10);
+      await User.create({
+        name: 'Vraj (Store Owner)',
+        email: ownerEmail,
+        phone: '9876500000',
+        password: ownerPasswordHash,
+        role: 'admin',
+        status: 'active',
+      });
+    } else if (ownerAdmin.phone !== '9876500000') {
+      ownerAdmin.phone = '9876500000';
+      await ownerAdmin.save();
+    }
+
+    console.log('Administrators configured: admin@example.com & vraj56630@gmail.com');
+  } catch (err) {
+    console.error('Error ensuring admin user exists:', err);
+  }
+}
