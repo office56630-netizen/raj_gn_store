@@ -51,7 +51,5 @@ const ProductSchema = new Schema<IProduct>(
   }
 );
 
-ProductSchema.index({ productCode: 1 }, { unique: true });
-
 export const Product: Model<IProduct> =
   mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);

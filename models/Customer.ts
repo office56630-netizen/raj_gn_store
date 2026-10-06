@@ -73,10 +73,5 @@ const CustomerSchema = new Schema<ICustomer>(
   }
 );
 
-// Indexes for fast lookup and duplicate prevention
-CustomerSchema.index({ customerCode: 1 }, { unique: true });
-CustomerSchema.index({ email: 1 }, { unique: true });
-CustomerSchema.index({ phone: 1 }, { unique: true });
-
 export const Customer: Model<ICustomer> =
   mongoose.models.Customer || mongoose.model<ICustomer>('Customer', CustomerSchema);

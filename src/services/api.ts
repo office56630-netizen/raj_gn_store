@@ -134,6 +134,9 @@ export function restoreAdminToken(): boolean {
   return false;
 }
 
+// Base URL for API requests (supports separate backend host if VITE_API_BASE_URL is set in Vercel)
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getStoredToken();
   const headers: HeadersInit = {
@@ -145,17 +148,48 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     (headers as any)['Authorization'] = `Bearer ${token}`;
   }
 
+  const targetUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetch(targetUrl, {
       ...options,
       headers,
       signal: options.signal || controller.signal,
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type') || '';
+    let data: any;
+
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      // Non-JSON response (e.g. Vercel 404 HTML, 502 Bad Gateway, or Cloudflare error)
+      const rawText = await response.text();
+      const isHtml = rawText.trim().startsWith('<') || rawText.includes('The page c') || rawText.includes('404');
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(
+            'API Route Not Found (404). If deployed on Vercel, please ensure vercel.json is deployed and your serverless function is configured.'
+          );
+        }
+        throw new Error(
+          isHtml
+            ? `Server error (${response.status}). Please check Vercel deployment logs.`
+            : rawText || `Request failed with status ${response.status}`
+        );
+      }
+      
+      // If OK but not JSON
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error(`Unexpected non-JSON response from server (${response.status}).`);
+      }
+    }
 
     if (!response.ok || data.success === false) {
       throw new Error(data.message || `Request failed with status ${response.status}`);
@@ -164,7 +198,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     return data;
   } catch (err: any) {
     if (err.name === 'AbortError') {
-      throw new Error('Request timed out. Please check your connection.');
+      throw new Error('Request timed out. Please check your internet connection or backend server.');
     }
     throw err;
   } finally {

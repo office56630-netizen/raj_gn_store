@@ -4,7 +4,10 @@ import bcrypt from 'bcryptjs';
 let isConnected = false;
 
 export async function connectDB(): Promise<void> {
-  if (isConnected) return;
+  if (isConnected || mongoose.connection.readyState >= 1) {
+    isConnected = true;
+    return;
+  }
 
   const mongoUri =
     process.env.MONGODB_URI ||
@@ -14,20 +17,25 @@ export async function connectDB(): Promise<void> {
     try {
       console.log('Attempting connection to MongoDB Atlas...');
       await mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 3000,
-        connectTimeoutMS: 3000,
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
       });
       isConnected = true;
       console.log('Connected to MongoDB Atlas successfully.');
       await ensureAdminExists();
       return;
     } catch (err: any) {
-      console.warn('MongoDB Atlas direct connection unavailable (IP whitelist or network):', err.message);
-      console.log('Starting high-performance embedded MongoDB engine...');
+      console.warn('MongoDB Atlas connection failed:', err.message);
+      if (process.env.VERCEL) {
+        console.error(
+          'Notice for Vercel deployment: Please verify MONGODB_URI in Vercel Settings -> Environment Variables, and ensure MongoDB Atlas -> Network Access allows 0.0.0.0/0.'
+        );
+      }
+      console.log('Attempting fallback to embedded MongoDB engine...');
     }
   }
 
-  // Fallback to embedded MongoDB
+  // Fallback to embedded MongoDB (local dev / Docker)
   try {
     const { MongoMemoryServer } = await import('mongodb-memory-server');
     const mongod = await MongoMemoryServer.create();
@@ -38,9 +46,11 @@ export async function connectDB(): Promise<void> {
     console.log('Connected to embedded MongoDB database.');
 
     await ensureAdminExists();
-  } catch (error) {
-    console.error('Fatal: Failed to initialize MongoDB:', error);
-    throw error;
+  } catch (error: any) {
+    console.error('Fatal: Failed to initialize MongoDB:', error.message);
+    throw new Error(
+      `MongoDB connection failed. In Vercel, please set MONGODB_URI in Environment Variables and whitelist 0.0.0.0/0 in MongoDB Atlas Network Access. (${error.message})`
+    );
   }
 }
 

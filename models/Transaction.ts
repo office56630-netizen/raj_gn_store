@@ -95,7 +95,6 @@ const TransactionSchema = new Schema<ITransaction>(
 );
 
 TransactionSchema.index({ customerId: 1, transactionDate: -1 });
-TransactionSchema.index({ transactionCode: 1 }, { unique: true });
 
 export const Transaction: Model<ITransaction> =
   mongoose.models.Transaction || mongoose.model<ITransaction>('Transaction', TransactionSchema);
