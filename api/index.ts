@@ -1,4 +1,4 @@
-import app from '../server.ts';
+import app from '../app.ts';
 import { connectDB } from '../config/database.ts';
 
 export default async function handler(req: any, res: any) {

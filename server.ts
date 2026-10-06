@@ -1,83 +1,16 @@
-import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import express from 'express';
 import dotenv from 'dotenv';
+import app from './app.ts';
 import { connectDB } from './config/database.ts';
-import authRoutes from './routes/authRoutes.ts';
-import customerRoutes from './routes/customerRoutes.ts';
-import productRoutes from './routes/productRoutes.ts';
-import transactionRoutes from './routes/transactionRoutes.ts';
-import notificationRoutes from './routes/notificationRoutes.ts';
-import reportRoutes from './routes/reportRoutes.ts';
-import auditLogRoutes from './routes/auditLogRoutes.ts';
-import { errorHandler } from './middleware/errorHandler.ts';
-import { authRateLimiter, apiRateLimiter } from './middleware/rateLimiter.ts';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-
-// Enable CORS for cross-domain / Vercel previews
-app.use((_req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (_req.method === 'OPTIONS') {
-    res.sendStatus(200);
-    return;
-  }
-  next();
-});
-
-// Prevent browser/proxy stale caching in preview iframe
-app.use((_req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  next();
-});
-
-// Body parsing
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Ensure database is connected for API requests
-app.use('/api', async (_req, _res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
-
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    system: 'CredEx Financial Ledger API',
-  });
-});
-
-// Apply rate limiting
-app.use('/api/auth/login', authRateLimiter);
-app.use('/api/auth/register', authRateLimiter);
-app.use('/api', apiRateLimiter);
-
-// REST API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/audit-logs', auditLogRoutes);
-
-// Centralized Express Error Handler
-app.use(errorHandler);
 
 async function startServer() {
   try {
@@ -116,11 +49,11 @@ async function startServer() {
   }
 }
 
-// Only start listening if server.ts is executed directly as the main process (not imported as a serverless handler)
-const isMain = process.argv[1] && (
-  fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) ||
-  process.argv[1].endsWith('server.ts')
-);
+// Only start listening if server.ts is executed directly as the main process
+const isMain =
+  process.argv[1] &&
+  (fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) ||
+    process.argv[1].endsWith('server.ts'));
 
 if (isMain && !process.env.VERCEL && !process.env.NOW_REGION) {
   startServer();
