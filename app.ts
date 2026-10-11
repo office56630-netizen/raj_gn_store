@@ -8,6 +8,7 @@ import transactionRoutes from './routes/transactionRoutes.ts';
 import notificationRoutes from './routes/notificationRoutes.ts';
 import reportRoutes from './routes/reportRoutes.ts';
 import auditLogRoutes from './routes/auditLogRoutes.ts';
+import cashbookRoutes from './routes/cashbookRoutes.ts';
 import { errorHandler } from './middleware/errorHandler.ts';
 import { authRateLimiter, apiRateLimiter } from './middleware/rateLimiter.ts';
 
@@ -69,6 +70,7 @@ app.use(['/api/transactions', '/transactions'], transactionRoutes);
 app.use(['/api/notifications', '/notifications'], notificationRoutes);
 app.use(['/api/reports', '/reports'], reportRoutes);
 app.use(['/api/audit-logs', '/audit-logs'], auditLogRoutes);
+app.use(['/api/cashbook', '/cashbook'], cashbookRoutes);
 
 // Centralized Express Error Handler
 app.use(errorHandler);

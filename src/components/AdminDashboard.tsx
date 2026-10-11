@@ -11,6 +11,7 @@ import {
   MessageCircle,
   Phone,
   PiggyBank,
+  Wallet,
 } from 'lucide-react';
 import { api } from '../services/api.ts';
 
@@ -134,6 +135,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           >
             <PiggyBank className="w-4 h-4 shrink-0" />
             <span>एडवांस</span>
+          </button>
+
+          {/* Daily Cashbook / Galla */}
+          <button
+            onClick={() => onNavigate('cashbook')}
+            className="min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+          >
+            <Wallet className="w-4 h-4 shrink-0 text-emerald-400" />
+            <span>रोकड़ (गल्ला)</span>
           </button>
 
           {/* Add Customer */}

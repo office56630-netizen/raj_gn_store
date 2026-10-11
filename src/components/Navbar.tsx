@@ -89,69 +89,72 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Main Top Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-4">
           {/* Left: Mobile Toggle & Store Brand */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="md:hidden min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
               aria-label="Toggle navigation"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-base shadow-xs shrink-0">
                 <Store className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <span className="text-sm sm:text-base font-bold tracking-tight text-slate-900 block leading-tight">
+              <div className="min-w-0">
+                <span className="text-xs sm:text-base font-bold tracking-tight text-slate-900 block leading-tight truncate max-w-[110px] xs:max-w-[160px] sm:max-w-none">
                   Kirana Khata Book
                 </span>
-                <span className="text-[10px] text-slate-500 font-medium block">
+                <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium block truncate max-w-[100px] xs:max-w-[140px] sm:max-w-none">
                   {currentUser?.role === 'admin' && !isImpersonating
-                    ? 'दुकानदार खाता (General Store)'
-                    : 'ग्राहक खाता (Customer Ledger)'}
+                    ? 'दुकानदार खाता'
+                    : 'ग्राहक खाता'}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Right: Notifications & User Profile */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            {/* Language Switcher (English / Hindi) */}
+          {/* Right: Language, Sync, Notifications & User Profile */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {/* Mobile Compact Language Switcher */}
+            <LanguageSelector compact className="sm:hidden" />
+
+            {/* Desktop Standard Language Switcher */}
             <LanguageSelector className="hidden sm:inline-flex mr-1" />
 
             {/* Direct Sync / Reload Button */}
             <button
               onClick={handleManualReload}
               disabled={isReloading}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
               title="रीलोड / डाटा सिंक (Reload / Sync Data)"
               aria-label="Reload and sync data"
             >
               <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 ${isReloading ? 'animate-spin text-emerald-600' : ''}`} />
             </button>
 
-            {/* Notification Bell with 44x44px Touch Target */}
-            <div className="relative">
+            {/* Notification Bell with 40-44px Touch Target */}
+            <div className="relative shrink-0">
               <button
                 onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center relative rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="min-h-[40px] min-w-[40px] flex items-center justify-center relative rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
                 title="Notifications"
                 aria-label="View notifications"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 w-4 h-4 bg-rose-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-rose-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* Notification Popover Dropdown */}
+              {/* Notification Popover Dropdown - Viewport aware */}
               {showNotifDropdown && (
-                <div className="absolute right-0 mt-2 w-72 sm:w-88 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
+                <div className="fixed sm:absolute top-14 sm:top-auto sm:mt-2 right-2 sm:right-0 w-[calc(100vw-16px)] sm:w-88 max-w-sm bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
                   <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-xs sm:text-sm font-semibold text-slate-900">Notifications</span>

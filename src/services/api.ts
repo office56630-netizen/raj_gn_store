@@ -99,6 +99,57 @@ export interface AuditLogItem {
   createdAt: string;
 }
 
+export interface SupplierOutflowItem {
+  _id?: string;
+  partyName: string;
+  category: 'DISTRIBUTOR' | 'WHOLESALER' | 'DAIRY' | 'BAKERY' | 'EXPENSE' | 'SALARY' | 'OTHER';
+  amount: number;
+  paymentMode: 'CASH' | 'ONLINE_UPI' | 'CREDIT';
+  billNumber?: string;
+  description?: string;
+  time?: string;
+}
+
+export interface CashDenominations {
+  c500: number;
+  c200: number;
+  c100: number;
+  c50: number;
+  c20: number;
+  c10: number;
+  coin10: number;
+  c5: number;
+  coin5: number;
+  coin2: number;
+  coin1: number;
+  cCoins: number;
+  totalCounted: number;
+}
+
+export interface DailyCashbookData {
+  _id?: string;
+  date: string;
+  openingCash: number;
+  directSales: number;
+  khataCollections: number;
+  onlineSales: number;
+  otherInflow: number;
+  totalInflow: number;
+  outflows: SupplierOutflowItem[];
+  totalOutflow: number;
+  totalCashOutflow: number;
+  totalOnlineOutflow: number;
+  denominations: CashDenominations;
+  expectedCash: number;
+  cashVariance: number;
+  closingNotes?: string;
+  isClosed: boolean;
+  isNewDay?: boolean;
+  automatedKhataCollected?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // Token storage helpers
 const TOKEN_KEY = 'credex_auth_token';
 const ADMIN_BACKUP_TOKEN_KEY = 'credex_admin_backup_token';
@@ -487,5 +538,65 @@ export const api = {
         };
       }>(`/api/audit-logs?${qs.toString()}`);
     },
+  },
+
+  cashbook: {
+    getDay: (date: string) =>
+      request<{ success: boolean; data: DailyCashbookData }>(`/api/cashbook/day/${date}`),
+
+    saveDay: (date: string, payload: Partial<DailyCashbookData>) =>
+      request<{ success: boolean; message: string; data: DailyCashbookData }>(
+        `/api/cashbook/day/${date}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        }
+      ),
+
+    addOutflow: (
+      date: string,
+      outflow: {
+        partyName: string;
+        category: string;
+        amount: number;
+        paymentMode: string;
+        billNumber?: string;
+        description?: string;
+      }
+    ) =>
+      request<{ success: boolean; message: string; data: DailyCashbookData }>(
+        `/api/cashbook/day/${date}/outflow`,
+        {
+          method: 'POST',
+          body: JSON.stringify(outflow),
+        }
+      ),
+
+    deleteOutflow: (date: string, outflowId: string) =>
+      request<{ success: boolean; message: string; data: DailyCashbookData }>(
+        `/api/cashbook/day/${date}/outflow/${outflowId}`,
+        {
+          method: 'DELETE',
+        }
+      ),
+
+    getHistory: (limit: number = 30) =>
+      request<{
+        success: boolean;
+        data: {
+          records: DailyCashbookData[];
+          summary: {
+            totalDays: number;
+            totalSalesAll: number;
+            totalOutflowsAll: number;
+            netCashDifference: number;
+          };
+        };
+      }>(`/api/cashbook/history?limit=${limit}`),
+
+    getSupplierSuggestions: () =>
+      request<{ success: boolean; data: { partyName: string; category: string }[] }>(
+        '/api/cashbook/supplier-suggestions'
+      ),
   },
 };

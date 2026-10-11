@@ -19,6 +19,7 @@ import {
   Home,
   BookOpen,
   Menu,
+  Wallet,
 } from 'lucide-react';
 import {
   api,
@@ -45,6 +46,7 @@ import { ProductManagement } from './components/ProductManagement.tsx';
 import { NotificationManagement } from './components/NotificationManagement.tsx';
 import { ReportsView } from './components/ReportsView.tsx';
 import { AuditLogsView } from './components/AuditLogsView.tsx';
+import { DailyCashbookView } from './components/DailyCashbookView.tsx';
 import { CustomerPortal } from './components/CustomerPortal.tsx';
 import { TransactionDetailModal } from './components/TransactionDetailModal.tsx';
 import { ChangePasswordModal } from './components/ChangePasswordModal.tsx';
@@ -59,7 +61,7 @@ function AppContent() {
   const [dataVersion, setDataVersion] = useState(0);
 
   // Admin Active Tab
-  const [adminTab, setAdminTab] = useState<'dashboard' | 'customers' | 'transactions' | 'products' | 'notifications' | 'reports' | 'audit-logs'>('dashboard');
+  const [adminTab, setAdminTab] = useState<'dashboard' | 'customers' | 'transactions' | 'cashbook' | 'products' | 'notifications' | 'reports' | 'audit-logs'>('dashboard');
 
   // Notifications
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -341,6 +343,21 @@ function AppContent() {
                     <span>लेनदेन बही (Transactions)</span>
                   </button>
 
+                  <button
+                    onClick={() => {
+                      setAdminTab('cashbook');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full min-h-[44px] flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-bold transition-colors cursor-pointer ${
+                      adminTab === 'cashbook'
+                        ? 'bg-slate-900 text-white shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Wallet className="w-4 h-4 text-emerald-500" />
+                    <span>{lang === 'hi' ? 'दैनिक रोकड़ बही (गल्ला)' : 'Daily Cashbook & Galla'}</span>
+                  </button>
+
                   {/* Fast Action Buttons in Drawer */}
                   <div className="pt-2 pb-1 px-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
@@ -531,6 +548,10 @@ function AppContent() {
                 />
               )}
 
+              {adminTab === 'cashbook' && (
+                <DailyCashbookView onRefreshGlobalData={triggerDataRefresh} />
+              )}
+
               {adminTab === 'products' && <ProductManagement />}
 
               {adminTab === 'notifications' && (
@@ -588,15 +609,15 @@ function AppContent() {
               </button>
             </div>
 
-            {/* 4. Transactions */}
+            {/* 4. Cashbook / Galla */}
             <button
-              onClick={() => setAdminTab('transactions')}
+              onClick={() => setAdminTab('cashbook')}
               className={`min-h-[48px] flex flex-col items-center justify-center cursor-pointer ${
-                adminTab === 'transactions' ? 'text-slate-900 font-bold' : 'text-slate-400 font-medium'
+                adminTab === 'cashbook' ? 'text-emerald-700 font-bold' : 'text-slate-400 font-medium'
               }`}
             >
-              <Receipt className="w-5 h-5" />
-              <span className="text-[10px] mt-0.5">लेनदेन</span>
+              <Wallet className="w-5 h-5" />
+              <span className="text-[10px] mt-0.5">{lang === 'hi' ? 'रोकड़ बही' : 'Cashbook'}</span>
             </button>
 
             {/* 5. More Menu */}

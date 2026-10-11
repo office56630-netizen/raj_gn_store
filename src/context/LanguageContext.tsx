@@ -22,6 +22,7 @@ export const translations: Translations = {
   notifications: { en: 'Notifications', hi: 'सूचनाएं' },
   reports: { en: 'Reports', hi: 'खाता रिपोर्ट' },
   auditLogs: { en: 'Audit Logs', hi: 'ऑडिट लॉग' },
+  cashbook: { en: 'Daily Cashbook & Galla', hi: 'दैनिक रोकड़ बही (गल्ला)' },
   logout: { en: 'Logout', hi: 'लॉगआउट' },
 
   // Financial Terms
@@ -52,6 +53,27 @@ export const translations: Translations = {
   whatsappReminder: { en: 'WhatsApp Reminder', hi: 'WhatsApp तगादा' },
   customerPortal: { en: 'Customer Portal', hi: 'ग्राहक पोर्टल' },
   all: { en: 'All', hi: 'सभी' },
+
+  // Cashbook Terms
+  openingCash: { en: 'Morning Galla / Opening Cash', hi: 'सुबह का गल्ला (शुरुआती रोकड़)' },
+  directSales: { en: 'Direct Counter Cash Sales', hi: 'दुकान नकद बिक्री' },
+  khataCollections: { en: 'Udhar Cash Collections', hi: 'उधार वसूली (नकद)' },
+  onlineSales: { en: 'UPI / Online Sales', hi: 'ऑनलाइन / UPI बिक्री' },
+  supplierPayments: { en: 'Purchases & Supplier Payments', hi: 'दुकान खरीद व सप्लायर भुगतान' },
+  denominations: { en: 'Note & Coin Tally', hi: 'नोट और सिक्का गणना (गल्ला मिलान)' },
+  notes: { en: 'Currency Notes', hi: 'कागजी नोट (Notes)' },
+  coins: { en: 'Indian Coins', hi: 'भारतीय सिक्के (Coins)' },
+  coin10: { en: '₹10 Coin', hi: '₹10 का सिक्का' },
+  coin5: { en: '₹5 Coin', hi: '₹5 का सिक्का' },
+  coin2: { en: '₹2 Coin', hi: '₹2 का सिक्का' },
+  coin1: { en: '₹1 Coin', hi: '₹1 का सिक्का' },
+  otherCoins: { en: 'Loose / Other Coins (₹)', hi: 'अन्य खुले सिक्के (कुल ₹)' },
+  countedCash: { en: 'Total Physical Cash Counted', hi: 'गल्ले में कुल नकद (गिना गया)' },
+  expectedCash: { en: 'Expected Closing Cash', hi: 'खाता अनुसार शेष रोकड़' },
+  cashVariance: { en: 'Tally Difference', hi: 'रोकड़ मिलान अंतर' },
+  matched: { en: 'Matched (Balanced)', hi: 'हिसाब बराबर' },
+  shortage: { en: 'Cash Shortage (Loss/Missing)', hi: 'गल्ला कम है (कमी)' },
+  surplus: { en: 'Cash Surplus (Extra)', hi: 'गल्ला अधिक है (फालतू)' },
 
   // Auth / Login
   login: { en: 'Sign In', hi: 'लॉगिन करें' },
@@ -113,32 +135,37 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
 export const useLanguage = () => useContext(LanguageContext);
 
-export const LanguageSelector: React.FC<{ className?: string }> = ({ className = '' }) => {
+export const LanguageSelector: React.FC<{ className?: string; compact?: boolean }> = ({
+  className = '',
+  compact = false,
+}) => {
   const { lang, setLang } = useLanguage();
 
   return (
-    <div className={`inline-flex items-center rounded-xl bg-slate-100 p-0.5 text-xs font-bold ${className}`}>
+    <div className={`inline-flex items-center rounded-lg bg-slate-100 p-0.5 text-xs font-bold shrink-0 ${className}`}>
       <button
         type="button"
         onClick={() => setLang('hi')}
-        className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+        className={`px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg transition-all cursor-pointer text-[11px] sm:text-xs ${
           lang === 'hi'
             ? 'bg-white text-slate-900 shadow-2xs'
             : 'text-slate-500 hover:text-slate-800'
         }`}
+        title="हिंदी भाषा चुनें"
       >
-        हिंदी
+        {compact ? 'हिं' : 'हिंदी'}
       </button>
       <button
         type="button"
         onClick={() => setLang('en')}
-        className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+        className={`px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg transition-all cursor-pointer text-[11px] sm:text-xs ${
           lang === 'en'
             ? 'bg-white text-slate-900 shadow-2xs'
             : 'text-slate-500 hover:text-slate-800'
         }`}
+        title="Switch to English"
       >
-        English
+        {compact ? 'EN' : 'English'}
       </button>
     </div>
   );
