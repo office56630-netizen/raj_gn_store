@@ -11,9 +11,12 @@ export function createRateLimiter(options: RateLimitOptions) {
   return rateLimit({
     windowMs: options.windowMs,
     limit: options.max,
-    message:
-      options.message ||
-      'बहुत अधिक अनुरोध। कृपया कुछ समय बाद पुनः प्रयास करें। (Too many requests. Please try again later.)',
+    message: {
+      success: false,
+      message:
+        options.message ||
+        'बहुत अधिक अनुरोध। कृपया कुछ समय बाद पुनः प्रयास करें। (Too many requests. Please try again later.)',
+    },
     skipSuccessfulRequests: options.skipSuccessfulRequests,
     standardHeaders: true,
     legacyHeaders: false,

@@ -16,6 +16,10 @@ dotenv.config();
 
 const app = express();
 
+if (process.env.VERCEL) {
+  app.set('trust proxy', 1);
+}
+
 // Enable CORS for cross-origin and Vercel deployments
 app.use((_req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
