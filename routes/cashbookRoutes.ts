@@ -187,6 +187,10 @@ router.post(
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { date } = req.params;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        res.status(400).json({ success: false, message: 'Date must use YYYY-MM-DD format' });
+        return;
+      }
       const {
         openingCash,
         directSales,
@@ -210,7 +214,7 @@ router.post(
       });
 
       const updated = await DailyCashbook.findOneAndUpdate(
-        { date },
+        { date: { $eq: date } },
         {
           date,
           ...computed,

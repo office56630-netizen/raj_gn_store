@@ -10,8 +10,10 @@ import {
   logAudit,
   AuthenticatedRequest,
 } from '../middleware/auth.ts';
+import { apiRateLimiter } from '../middleware/rateLimiter.ts';
 
 const router = Router();
+router.use(apiRateLimiter);
 
 // GET /api/transactions
 // Filter by search, date range, customer, type (CREDIT/DEBIT), product, amount
@@ -170,6 +172,15 @@ router.post('/', authenticateJWT, requireAdmin, async (req: AuthenticatedRequest
         success: false,
         message: 'Customer, transaction type (CREDIT/DEBIT), and amount are required',
       });
+      return;
+    }
+
+    if (typeof customerId !== 'string' || !mongoose.isValidObjectId(customerId)) {
+      res.status(400).json({ success: false, message: 'Customer ID is invalid' });
+      return;
+    }
+    if (productId && (typeof productId !== 'string' || !mongoose.isValidObjectId(productId))) {
+      res.status(400).json({ success: false, message: 'Product ID is invalid' });
       return;
     }
 

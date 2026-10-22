@@ -15,8 +15,12 @@ router.get(
       const { search, action, page = 1, limit = 50 } = req.query;
 
       const query: any = {};
+      if (action && typeof action !== 'string') {
+        res.status(400).json({ success: false, message: 'Action filter must be a string' });
+        return;
+      }
       if (action && action !== 'all') {
-        query.action = action;
+        query.action = { $eq: action };
       }
       if (search && typeof search === 'string' && search.trim() !== '') {
         const regex = new RegExp(search.trim(), 'i');

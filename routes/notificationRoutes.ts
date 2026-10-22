@@ -111,6 +111,10 @@ router.post('/', authenticateJWT, requireAdmin, async (req: AuthenticatedRequest
       );
     } else if (Array.isArray(customerIds) && customerIds.length > 0) {
       // Multiple customers
+      if (customerIds.some((id: unknown) => typeof id !== 'string' || !mongoose.isValidObjectId(id))) {
+        res.status(400).json({ success: false, message: 'Customer IDs must be valid IDs' });
+        return;
+      }
       const validCustomers = await Customer.find({ _id: { $in: customerIds } });
       const count = await Notification.countDocuments();
 
@@ -137,6 +141,10 @@ router.post('/', authenticateJWT, requireAdmin, async (req: AuthenticatedRequest
       );
     } else if (customerId) {
       // Individual customer
+      if (typeof customerId !== 'string' || !mongoose.isValidObjectId(customerId)) {
+        res.status(400).json({ success: false, message: 'Customer ID is invalid' });
+        return;
+      }
       const customer = await Customer.findById(customerId);
       if (!customer) {
         res.status(404).json({ success: false, message: 'Target customer not found' });
