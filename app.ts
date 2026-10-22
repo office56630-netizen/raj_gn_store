@@ -34,6 +34,8 @@ app.use((_req, res, next) => {
   next();
 });
 
+app.use(apiRateLimiter);
+
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -60,7 +62,6 @@ app.get(['/api/health', '/health'], (_req, res) => {
 // Apply rate limiting
 app.use('/api/auth/login', authRateLimiter);
 app.use('/api/auth/register', authRateLimiter);
-app.use('/api', apiRateLimiter);
 
 // REST API routes - Mounted on both /api/* and /* so Vercel rewrites work regardless of path prefix
 app.use(['/api/auth', '/auth'], authRoutes);
