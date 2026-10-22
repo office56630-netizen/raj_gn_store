@@ -40,7 +40,11 @@ router.get(
 
       const query: any = {};
       if (status && status !== 'all') {
-        query.status = status;
+        if (typeof status !== 'string') {
+          res.status(400).json({ success: false, message: 'Status filter must be a string' });
+          return;
+        }
+        query.status = { $eq: status };
       }
 
       if (search && typeof search === 'string' && search.trim() !== '') {
@@ -253,6 +257,11 @@ router.put(
       const { id } = req.params;
       const { name, email, phone, address, city, state, pincode, status } = req.body;
 
+      if (status !== undefined && (typeof status !== 'string' || !['active', 'inactive'].includes(status))) {
+        res.status(400).json({ success: false, message: 'Status must be active or inactive' });
+        return;
+      }
+
       const customer = await Customer.findById(id);
       if (!customer) {
         res.status(404).json({ success: false, message: 'Customer not found' });
@@ -289,7 +298,7 @@ router.put(
       if (city !== undefined) customer.city = city;
       if (state !== undefined) customer.state = state;
       if (pincode !== undefined) customer.pincode = pincode;
-      if (status) {
+      if (status !== undefined) {
         customer.status = status;
         await User.updateOne({ customerId: id }, { status });
       }

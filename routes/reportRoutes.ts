@@ -5,8 +5,10 @@ import { Product } from '../models/Product.ts';
 import { Transaction } from '../models/Transaction.ts';
 import { calculateAllCustomersBalances } from '../utils/calculations.ts';
 import { authenticateJWT, requireAdmin, AuthenticatedRequest } from '../middleware/auth.ts';
+import { apiRateLimiter } from '../middleware/rateLimiter.ts';
 
 const router = Router();
+router.use(apiRateLimiter);
 
 // GET /api/reports/dashboard-stats
 // Main overview statistics for Admin Dashboard

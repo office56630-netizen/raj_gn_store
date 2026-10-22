@@ -13,10 +13,18 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
 
     const query: any = {};
     if (status && status !== 'all') {
-      query.status = status;
+      if (typeof status !== 'string') {
+        res.status(400).json({ success: false, message: 'Status filter must be a string' });
+        return;
+      }
+      query.status = { $eq: status };
     }
     if (category && category !== 'all') {
-      query.category = category;
+      if (typeof category !== 'string') {
+        res.status(400).json({ success: false, message: 'Category filter must be a string' });
+        return;
+      }
+      query.category = { $eq: category };
     }
     if (search && typeof search === 'string' && search.trim() !== '') {
       const searchRegex = new RegExp(search.trim(), 'i');

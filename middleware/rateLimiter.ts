@@ -32,11 +32,8 @@ export function createRateLimiter(options: RateLimitOptions) {
   }, 120000).unref();
 
   return (req: Request, res: Response, next: NextFunction): void => {
-    // Generate identifier from IP + route or client header
-    const ip =
-      (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
-      req.socket.remoteAddress ||
-      'unknown';
+    // Generate identifier from IP + route
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const key = `${ip}:${req.baseUrl || req.path}`;
     const now = Date.now();
 
