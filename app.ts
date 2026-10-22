@@ -16,6 +16,10 @@ dotenv.config();
 
 const app = express();
 
+if (process.env.VERCEL) {
+  app.set('trust proxy', 1);
+}
+
 // Enable CORS for cross-origin and Vercel deployments
 app.use((_req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -33,6 +37,8 @@ app.use((_req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   next();
 });
+
+app.use(apiRateLimiter);
 
 // Body parsing
 app.use(express.json());
@@ -60,7 +66,6 @@ app.get(['/api/health', '/health'], (_req, res) => {
 // Apply rate limiting
 app.use('/api/auth/login', authRateLimiter);
 app.use('/api/auth/register', authRateLimiter);
-app.use('/api', apiRateLimiter);
 
 // REST API routes - Mounted on both /api/* and /* so Vercel rewrites work regardless of path prefix
 app.use(['/api/auth', '/auth'], authRoutes);
