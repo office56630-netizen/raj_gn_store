@@ -10,8 +10,7 @@ export async function connectDB(): Promise<void> {
   }
 
   const mongoUri =
-    process.env.MONGODB_URI ||
-    'mongodb+srv://vraj56630_db_user:genralstore123@cluster0.f0iyuqc.mongodb.net/credex?retryWrites=true&w=majority&appName=Cluster0';
+    process.env.MONGODB_URI';
 
   if (mongoUri && mongoUri.trim() !== '') {
     try {
