@@ -10,7 +10,7 @@ export async function connectDB(): Promise<void> {
   }
 
   const mongoUri =
-    process.env.MONGODB_URI';
+    process.env.MONGODB_URI;
 
   if (mongoUri && mongoUri.trim() !== '') {
     try {

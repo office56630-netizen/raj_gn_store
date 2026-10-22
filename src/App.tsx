@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import {
   LayoutDashboard,
   Users,
@@ -725,6 +726,7 @@ export default function App() {
   return (
     <LanguageProvider>
       <AppContent />
+      <Analytics />
     </LanguageProvider>
   );
 }
